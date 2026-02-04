@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            max-width: 500px;
+        }
+        .loading {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .denied {
+            font-size: 48px;
+            margin: 20px 0;
+        }
+        .message {
+            font-size: 20px;
+            line-height: 1.6;
+        }
+        .time {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Checking the time...</p>
+        </div>
+        <div id="content" style="display: none;"></div>
+    </div>
+
+    <script>
+        
+        const CONFIG = {
+            mode: 'witching_hour', //alternating or random
+            
+            witchingHourVideo: 'https://youtu.be/BBJa32lCaaY?si=wSyKzrl9SHzar5nG',
+            video1: 'https://youtu.be/NHJO200VG-s',
+            video2: 'https://youtu.be/8ClTw_B6rLU',
+            
+            // Witching hour (24-hour format)
+            witchingHour: 3, // 3 AM
+            
+            // Alternating mode(switches every X seconds)
+            alternatingInterval: 10, // seconds
+        };
+        
+        
+        function getCurrentHour() {
+            return new Date().getHours();
+        }
+        
+        function getTimeSinceEpoch() {
+            return Math.floor(Date.now() / 1000);
+        }
+        
+        function showDenied() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            document.getElementById('content').innerHTML = `
+                <div class="denied">🕐</div>
+                <div class="message">
+                    <p>This content is only available during the</p>
+                    <div class="time">WITCHING HOUR</div>
+                    <p>Come back at 3:00 AM</p>
+                </div>
+            `;
+        }
+        
+        function redirect(url) {
+            setTimeout(() => {
+                window.location.href = url;
+            }, 500);
+        }
+        
+        function handleWitchingHour() {
+            const currentHour = getCurrentHour();
+            if (currentHour === CONFIG.witchingHour) {
+                redirect(CONFIG.witchingHourVideo);
+            } else {
+                showDenied();
+            }
+        }
+        
+        function handleAlternating() {
+            const elapsed = getTimeSinceEpoch();
+            const cycle = Math.floor(elapsed / CONFIG.alternatingInterval) % 2;
+            const url = cycle === 0 ? CONFIG.video1 : CONFIG.video2;
+            redirect(url);
+        }
+        
+        function handleRandom() {
+            const url = Math.random() < 0.5 ? CONFIG.video1 : CONFIG.video2;
+            redirect(url);
+        }
+
+        setTimeout(() => {
+            switch(CONFIG.mode) {
+                case 'witching_hour':
+                    handleWitchingHour();
+                    break;
+                case 'alternating':
+                    handleAlternating();
+                    break;
+                case 'random':
+                    handleRandom();
+                    break;
+                default:
+                    redirect(CONFIG.video1);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
